@@ -92,5 +92,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           context: .
-          file: Dockerfile-${{ steps.vars.outputs.VARIANT }}
+          file: Dockerfile.${{ steps.vars.outputs.VARIANT }}
           tags: ${{ steps.vars.outputs.TAG_LIST }}
