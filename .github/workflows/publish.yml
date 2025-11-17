@@ -67,7 +67,7 @@ jobs:
 
           TAG_LIST="ghcr.io/${REPO_OWNER}/devcontainer-${VARIANT}:${TAG}"
           if [ "$PUSH_LATEST" = "true" ]; then
-            TAG_LIST="${TAG_LIST} ghcr.io/${REPO_OWNER}/devcontainer-${VARIANT}:latest"
+            TAG_LIST="${TAG_LIST}\nghcr.io/${REPO_OWNER}/devcontainer-${VARIANT}:latest"
           fi
 
           {
