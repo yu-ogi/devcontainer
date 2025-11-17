@@ -65,15 +65,18 @@ jobs:
             PUSH_LATEST=false
           fi
 
-          TAG_LIST="ghcr.io/${REPO_OWNER}/devcontainer-${VARIANT}:${TAG}"
-          if [ "$PUSH_LATEST" = "true" ]; then
-            TAG_LIST="${TAG_LIST}"$'\n'"ghcr.io/${REPO_OWNER}/devcontainer-${VARIANT}:latest"
-          fi
+          {
+            echo "TAG_LIST<<EOF"
+            echo "ghcr.io/${GITHUB_REPOSITORY_OWNER}/devcontainer-${VARIANT}:${TAG}"
+            if [ "${PUSH_LATEST}" = "true" ]; then
+              echo "ghcr.io/${GITHUB_REPOSITORY_OWNER}/devcontainer-${VARIANT}:latest"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           {
             echo "VARIANT=$VARIANT"
             echo "PUSH_LATEST=$PUSH_LATEST"
-            echo "TAG_LIST=$TAG_LIST"
             echo "TAG=$TAG"
           } >> "$GITHUB_OUTPUT"
 
