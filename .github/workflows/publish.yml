@@ -1,0 +1,93 @@
+name: Publish Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      dockerfile_variant:
+        description: "Dockerfileの種類"
+        required: true
+        type: choice
+        options:
+          - node
+      tag:
+        description: "Dockerイメージのタグ (省略時は YYMMDD)"
+        required: false
+        default: ""
+      latest:
+        description: "latestタグを追加するか"
+        required: false
+        type: boolean
+        default: true
+      dry_run:
+        description: "Dry Run"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Set up variables
+        id: vars
+        env:
+          INPUT_DOCKERFILE_VARIANT: ${{ github.event.inputs.dockerfile_variant }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_LATEST: ${{ github.event.inputs.latest }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          VARIANT="$INPUT_DOCKERFILE_VARIANT"
+          DRY_RUN="$INPUT_DRY_RUN"
+          DATE=$(date "+%y%m%d")
+
+          if [ -z "$INPUT_TAG" ]; then
+            TAG="$DATE"
+          else
+            TAG="$INPUT_TAG"
+          fi
+
+          if ! echo "$TAG" | grep -Eq '^[A-Za-z0-9_.-]+$'; then
+            echo "Error: tag contains invalid characters. Allowed: A-Za-z0-9_.-"
+            exit 1
+          fi
+
+          if [ "$INPUT_LATEST" = "true" ]; then
+            PUSH_LATEST=true
+          else
+            PUSH_LATEST=false
+          fi
+
+          IMAGE_URL="ghcr.io/$REPO_OWNER/devcontainer-$VARIANT:$TAG"
+
+          {
+            echo "VARIANT=$VARIANT"
+            echo "TAG=$TAG"
+            echo "PUSH_LATEST=$PUSH_LATEST"
+            echo "IMAGE_URL=$IMAGE_URL"
+            echo "DRY_RUN=$DRY_RUN"
+          } >> "$GITHUB_ENV"
+
+      - name: Docker build
+        run: |
+          docker build -f "Dockerfile.${VARIANT}" -t "$IMAGE_URL" .
+
+      - name: Docker push
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[DRY RUN] docker push $IMAGE_URL"
+            if [ "$PUSH_LATEST" = "true" ]; then
+              echo "[DRY RUN] docker tag $IMAGE_URL ${IMAGE_URL%:*}:latest"
+              echo "[DRY RUN] docker push ${IMAGE_URL%:*}:latest"
+            fi
+          else
+            docker push "$IMAGE_URL"
+            if [ "$PUSH_LATEST" = "true" ]; then
+              docker tag "$IMAGE_URL" "${IMAGE_URL%:*}:latest"
+              docker push "${IMAGE_URL%:*}:latest"
+            fi
+          fi
