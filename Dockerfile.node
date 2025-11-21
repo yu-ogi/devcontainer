@@ -19,8 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Ensure default node user has access to /usr/local/share
-RUN mkdir -p /usr/local/share/npm-global && \
-  chown -R node:node /usr/local/share
+RUN mkdir -p /usr/local/share/npm-global \
+  && chown -R node:node /usr/local/share
 
 # Ensure default `node` user has access to `sudo`
 ARG USERNAME=node
@@ -42,8 +42,8 @@ RUN echo 'HISTFILE=/commandhistory/.zsh_history' >> /home/$USERNAME/.zshrc \
 ENV DEVCONTAINER=true
 
 # Create workspace and config directories and set permissions
-RUN mkdir -p /workspace /home/node/.claude && \
-  chown -R node:node /workspace /home/node/.claude
+RUN mkdir -p /workspace /home/node/.claude \
+  && chown -R node:node /workspace /home/node/.claude
 
 WORKDIR /workspace
 
