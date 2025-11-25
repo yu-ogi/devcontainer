@@ -36,6 +36,7 @@ RUN mkdir -p /commandhistory \
 RUN echo 'HISTFILE=/commandhistory/.zsh_history' >> /home/$USERNAME/.zshrc \
   && echo 'SAVEHIST=10000' >> /home/$USERNAME/.zshrc \
   && echo 'setopt append_history' >> /home/$USERNAME/.zshrc \
+  && echo 'setopt hist_ignore_dups' >> /home/$USERNAME/.zshrc \
   && chown $USERNAME:$USERNAME /home/$USERNAME/.zshrc
 
 # Set `DEVCONTAINER` environment variable to help with orientation
