@@ -1,6 +1,7 @@
 FROM node:24
 
 ARG CLAUDE_CODE_VERSION=latest
+ARG PNPM_VERSION=latest
 
 # Install basic development tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -58,5 +59,5 @@ ENV PATH=$PATH:/usr/local/share/npm-global/bin
 # Set the default shell to zsh rather than sh
 ENV SHELL=/bin/zsh
 
-# Install Claude
-RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
+# Install Claude and pnpm
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION} pnpm@${PNPM_VERSION}
